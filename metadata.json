@@ -1,0 +1,5 @@
+{
+  "name": "Copy of 123",
+  "description": "A beautiful, modern e-commerce style product catalog for a gift shop named 'Detalles Cariñitos'. This application uses the Gemini API to dynamically generate a list of gift ideas, complete with names, descriptions, and prices, and displays them in a visually appealing, responsive grid.",
+  "requestFramePermissions": []
+}
