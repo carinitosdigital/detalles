@@ -1,6 +1,4 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenAI } from "@google/genai";
 import { Product } from '../types';
 
 interface ChatWidgetProps {
@@ -13,52 +11,98 @@ interface Message {
   text: string;
 }
 
+// Traditional Chatbot Knowledge Base
+const KNOWLEDGE_BASE = {
+  greetings: ['hola', 'buenos dias', 'buenas tardes', 'buenas noches', 'hey', 'alo'],
+  location: ['ubicacion', 'direccion', 'donde estan', 'local', 'punto fisico', 'barrio'],
+  hours: ['horario', 'hora', 'abierto', 'cierran', 'atencion', '24 7', '24/7'],
+  contact: ['telefono', 'whatsapp', 'celular', 'numero', 'contacto', 'llamar'],
+  delivery: ['domicilio', 'envio', 'entrega', 'llevan', 'cobertura', 'pereira', 'cuba', 'dosquebradas', 'santa rosa'],
+  products: ['que venden', 'productos', 'catalogo', 'vende', 'tienen'],
+  payment: ['pago', 'pagar', 'nequi', 'daviplata', 'efectivo', 'tarjeta', 'precio', 'costo', 'valor'],
+  howToBuy: ['comprar', 'pedir', 'pedido', 'ordenar', 'carrito'],
+  social: ['facebook', 'instagram', 'redes', 'fotos'],
+};
+
 const ChatWidget: React.FC<ChatWidgetProps> = ({ products, onScrollToProducts }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'model', text: '¡Hola! 👋 Soy tu asistente virtual de Detalles Cariñitos. ¿En qué puedo ayudarte hoy? Puedo recomendarte regalos, darte info de la tienda o explicarte cómo pedir.' }
+    { role: 'model', text: '¡Hola! 👋 Bienvenido a Detalles Cariñitos. Soy tu asistente virtual. Puedo ayudarte con información de la tienda, domicilios, horarios o recomendarte regalos. ¿Qué necesitas saber?' }
   ]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isListening, setIsListening] = useState(false);
-
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
-
-  // Initial system instruction with all store data
-  const systemInstruction = `
-    Eres el asistente virtual amable y experto de la tienda de regalos "Detalles Cariñitos".
-    
-    INFORMACIÓN DE LA TIENDA:
-    - Nombre: Detalles Cariñitos
-    - Teléfono/WhatsApp: 573229297190
-    - Dirección: Calle 34#11-02 barrio Guadalupe, Dosquebradas.
-    - Horario: 24/7.
-    - Cobertura Domicilios: Dosquebradas, Risaralda, Pereira, Cuba, Santa Rosa y alrededores.
-    - Productos: Desayunos sorpresa, anchetas, peluches, cojines, chocolates, globos con helio personalizados, bolsas, cajas, empaques de regalo, billeteras, cosméticos, piñatería, mugs, tarjetas.
-    - Redes Sociales: 
-      - Facebook: https://facebook.com/detallescarinitos
-      - Instagram: https://instagram.com/detallescarinitos
-
-    TUS FUNCIONES:
-    1. Recomendar productos basados en la ocasión (cumpleaños, amor, amistad, etc.). Tienes acceso a la lista de productos actuales.
-    2. Brindar información de contacto, ubicación y horarios.
-    3. Explicar cómo comprar: "Selecciona el producto -> Agregar al carrito -> Ir al carrito -> Llenar formulario -> Enviar pedido por WhatsApp".
-    4. Si el usuario pregunta por productos específicos, indícale que pueden verlos en la tienda (usa palabras clave para sugerir que exploren).
-    5. Si te piden "desplazar" o "ir a los productos", diles que pueden bajar en la página (y la UI lo hará si es posible, pero tú responde verbalmente).
-    6. Sé muy amable, usa emojis y mantén un tono festivo y servicial.
-
-    LISTA DE PRODUCTOS ACTUALES (Úsala para recomendaciones):
-    ${products.map(p => `- ${p.name} (${p.category}): $${p.price}`).join('\n')}
-  `;
-
+  
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
-    scrollToBottom();
+    if (isOpen) {
+      scrollToBottom();
+    }
   }, [messages, isOpen]);
+
+  // Rule-based logic engine
+  const getBotResponse = (input: string): string => {
+    const lowerInput = input.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Remove accents
+
+    // 1. Check Navigation
+    if (lowerInput.includes('ver productos') || lowerInput.includes('ir a la tienda') || lowerInput.includes('bajar')) {
+        onScrollToProducts();
+        return "¡Claro! Te llevo a la sección de productos. 👇";
+    }
+
+    // 2. Check Greetings
+    if (KNOWLEDGE_BASE.greetings.some(word => lowerInput.includes(word))) {
+        return "¡Hola! 😊 ¿En qué puedo ayudarte hoy? Tenemos regalos hermosos para toda ocasión.";
+    }
+
+    // 3. Check Location
+    if (KNOWLEDGE_BASE.location.some(word => lowerInput.includes(word))) {
+        return "📍 Estamos ubicados en el barrio Guadalupe, Dosquebradas. Dirección exacta: Calle 34 #11-02. ¡Te esperamos!";
+    }
+
+    // 4. Check Hours
+    if (KNOWLEDGE_BASE.hours.some(word => lowerInput.includes(word))) {
+        return "🕒 ¡Nuestro horario es increíble! Atendemos 24/7. Sí, las 24 horas del día, los 7 días de la semana.";
+    }
+
+    // 5. Check Contact
+    if (KNOWLEDGE_BASE.contact.some(word => lowerInput.includes(word))) {
+        return "📞 Nuestro número principal de WhatsApp para pedidos es: 322 929 7190 (+573229297190).";
+    }
+
+    // 6. Check Delivery
+    if (KNOWLEDGE_BASE.delivery.some(word => lowerInput.includes(word))) {
+        return "🛵 Contamos con servicio a domicilio en Dosquebradas, Pereira, Cuba, Santa Rosa y sus alrededores. ¡Llevamos tu sorpresa a la puerta!";
+    }
+
+    // 7. Check Payment
+    if (KNOWLEDGE_BASE.payment.some(word => lowerInput.includes(word))) {
+        return "💳 Aceptamos varios métodos de pago para tu comodidad: Nequi, Daviplata, Datáfono (tarjetas) y Efectivo.";
+    }
+
+    // 8. Check How to Buy
+    if (KNOWLEDGE_BASE.howToBuy.some(word => lowerInput.includes(word))) {
+        return "🛒 ¡Es muy fácil! 1. Selecciona el regalo que te guste y dale 'Agregar'. 2. Ve al carrito (icono arriba a la derecha). 3. Llena tus datos. 4. El sistema generará un mensaje de WhatsApp para confirmar tu pedido con nosotros.";
+    }
+
+     // 9. Check Social
+     if (KNOWLEDGE_BASE.social.some(word => lowerInput.includes(word))) {
+        return "📱 Síguenos en nuestras redes sociales como Detalles Cariñitos en Facebook e Instagram para ver más fotos y tendencias.";
+    }
+
+    // 10. Product Recommendations (Simple Keyword Matching)
+    if (lowerInput.includes('desayuno')) return "🥐 Nuestros desayunos sorpresa son deliciosos. Incluyen sándwich, jugo, frutas y decoración. ¡Mira la sección de 'Desayunos' arriba!";
+    if (lowerInput.includes('peluche') || lowerInput.includes('oso')) return "🧸 Tenemos peluches desde pequeños hasta osos gigantes de 1 metro. ¡Son súper suaves!";
+    if (lowerInput.includes('ancheta') || lowerInput.includes('vino') || lowerInput.includes('cerveza')) return "🍷 Las anchetas son perfectas para celebrar. Tenemos con licores, dulces o frutas.";
+    if (lowerInput.includes('globo') || lowerInput.includes('helio')) return "🎈 Personalizamos globos con helio para cualquier mensaje que quieras dar.";
+
+    // Default Fallback
+    return "🤔 No estoy seguro de entender esa pregunta específica, pero soy un experto en regalos. Puedes preguntarme por nuestra 'ubicación', 'horario', 'cómo comprar' o ver nuestros productos.";
+  };
 
   const handleSendMessage = async () => {
     if (!inputText.trim()) return;
@@ -68,36 +112,12 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ products, onScrollToProducts })
     setInputText('');
     setIsTyping(true);
 
-    try {
-      const chat = ai.chats.create({
-        model: 'gemini-2.5-flash',
-        config: { systemInstruction },
-      });
-
-      // Include history
-      const history = messages.map(m => ({
-         role: m.role,
-         parts: [{ text: m.text }]
-      }));
-
-      const result = await chat.sendMessage({ message: userMessage });
-      const responseText = result.text;
-
-      setMessages(prev => [...prev, { role: 'model', text: responseText }]);
-      
-      // Basic Keyword triggering for Navigation actions
-      if (responseText.toLowerCase().includes('ver los productos') || 
-          userMessage.toLowerCase().includes('ver productos') ||
-          userMessage.toLowerCase().includes('ir a la tienda')) {
-        onScrollToProducts();
-      }
-
-    } catch (error) {
-      console.error("Error chat:", error);
-      setMessages(prev => [...prev, { role: 'model', text: "Lo siento, tuve un pequeño problema. ¿Me lo repites?" }]);
-    } finally {
-      setIsTyping(false);
-    }
+    // Simulate thinking delay
+    setTimeout(() => {
+        const responseText = getBotResponse(userMessage);
+        setMessages(prev => [...prev, { role: 'model', text: responseText }]);
+        setIsTyping(false);
+    }, 600);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -109,7 +129,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ products, onScrollToProducts })
     const lastModelMessage = [...messages].reverse().find(m => m.role === 'model');
     if (lastModelMessage) {
       const utterance = new SpeechSynthesisUtterance(lastModelMessage.text);
-      utterance.lang = 'es-ES';
+      utterance.lang = 'es-ES'; // Set to Spanish
       window.speechSynthesis.speak(utterance);
     }
   };
@@ -134,7 +154,6 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ products, onScrollToProducts })
       const transcript = event.results[0][0].transcript;
       setInputText(transcript);
       setIsListening(false);
-      // Auto-send could be enabled, but let's let user confirm
     };
 
     recognition.onerror = (event: any) => {
@@ -166,7 +185,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ products, onScrollToProducts })
 
       {/* Chat Window */}
       <div 
-        className={`fixed bottom-24 right-6 z-40 w-80 md:w-96 bg-white rounded-2xl shadow-2xl flex flex-col transition-all duration-300 transform origin-bottom-right ${
+        className={`fixed bottom-24 right-6 z-50 w-80 md:w-96 bg-white rounded-2xl shadow-2xl flex flex-col transition-all duration-300 transform origin-bottom-right ${
           isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'
         }`}
         style={{ maxHeight: '600px', height: '70vh' }}
@@ -178,7 +197,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ products, onScrollToProducts })
           </div>
           <div>
             <h3 className="font-bold text-primary-fuchsia">Asistente Cariñitos</h3>
-            <p className="text-xs text-gray-600">Siempre disponible 24/7</p>
+            <p className="text-xs text-gray-600">Responde al instante</p>
           </div>
         </div>
 
@@ -224,7 +243,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ products, onScrollToProducts })
             <input
               type="text"
               className="flex-grow p-2 border border-gray-300 rounded-full focus:outline-none focus:border-primary-fuchsia text-sm"
-              placeholder="Escribe tu duda..."
+              placeholder="Pregunta por horario, ubicación..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyPress={handleKeyPress}

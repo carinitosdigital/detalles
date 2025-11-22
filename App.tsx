@@ -32,12 +32,13 @@ const App: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
+      // Now loads from local static database
       const generatedProducts = await generateProducts();
       setProducts(generatedProducts);
       setFilteredProducts(generatedProducts);
     } catch (err) {
       console.error(err);
-      setError('No pudimos cargar los regalos. Por favor, intenta de nuevo más tarde.');
+      setError('No pudimos cargar el catálogo. Por favor, recarga la página.');
     } finally {
       setIsLoading(false);
     }

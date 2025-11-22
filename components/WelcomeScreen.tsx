@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 
 interface WelcomeScreenProps {
@@ -7,15 +6,17 @@ interface WelcomeScreenProps {
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
   const [isVisible, setIsVisible] = useState(true);
+  const [shouldRender, setShouldRender] = useState(true);
 
   useEffect(() => {
-    // Start fade out after 2.5 seconds
+    // Start fade out quickly to avoid blocking
     const timer = setTimeout(() => {
       setIsVisible(false);
     }, 2500);
 
-    // Trigger onComplete after the fade out transition finishes (approx 3s total)
+    // Completely unmount
     const completeTimer = setTimeout(() => {
+      setShouldRender(false);
       onComplete();
     }, 3000);
 
@@ -25,11 +26,23 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
     };
   }, [onComplete]);
 
+  const handleDismiss = () => {
+    setIsVisible(false);
+    setTimeout(() => {
+      setShouldRender(false);
+      onComplete();
+    }, 500); // Wait for fade out
+  };
+
+  if (!shouldRender) return null;
+
   return (
     <div 
-      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background-cream transition-opacity duration-700 ease-in-out ${
+      onClick={handleDismiss}
+      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background-cream transition-opacity duration-500 ease-in-out cursor-pointer ${
         isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
+      aria-label="Pantalla de bienvenida"
     >
       <div className={`transform transition-all duration-1000 ${isVisible ? 'scale-100 translate-y-0' : 'scale-90 translate-y-4'}`}>
         <img
@@ -39,12 +52,15 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
         />
       </div>
       
-      <div className="text-center">
+      <div className="text-center px-4">
         <h1 className="text-4xl md:text-6xl font-pacifico text-primary-fuchsia mb-2">
           ¡Bienvenido!
         </h1>
-        <p className="text-xl text-gray-600 font-poppins">
+        <p className="text-xl text-gray-600 font-poppins mb-8">
           Regalos con amor para ti...
+        </p>
+        <p className="text-sm text-gray-400 animate-bounce">
+          (Toca para entrar)
         </p>
       </div>
     </div>
