@@ -13,6 +13,7 @@ import ChatWidget from './components/ChatWidget';
 import WelcomeScreen from './components/WelcomeScreen';
 import AboutSection from './components/AboutSection';
 import InfiniteCarousel from './components/InfiniteCarousel';
+import LiveVisitors from './components/LiveVisitors';
 
 const App: React.FC = () => {
   const [showWelcome, setShowWelcome] = useState<boolean>(true);
@@ -20,16 +21,57 @@ const App: React.FC = () => {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   
-  // Default view mode is 'list' as requested
-  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'single'>('list');
+  // PERSISTENCIA: Categoría
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem('dc_selectedCategory');
+    } catch {
+      return null;
+    }
+  });
 
-  const [cart, setCart] = useState<CartItem[]>([]);
+  // PERSISTENCIA: Modo de Vista
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'single'>(() => {
+    try {
+      const saved = localStorage.getItem('dc_viewMode');
+      return (saved === 'grid' || saved === 'single') ? saved : 'list';
+    } catch {
+      return 'list';
+    }
+  });
+
+  // PERSISTENCIA: Carrito de Compras
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('dc_cart');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   
   const productsSectionRef = useRef<HTMLDivElement>(null);
+
+  // EFECTOS DE GUARDADO (LocalStorage)
+  useEffect(() => {
+    localStorage.setItem('dc_cart', JSON.stringify(cart));
+  }, [cart]);
+
+  useEffect(() => {
+    if (selectedCategory) {
+      localStorage.setItem('dc_selectedCategory', selectedCategory);
+    } else {
+      localStorage.removeItem('dc_selectedCategory');
+    }
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    localStorage.setItem('dc_viewMode', viewMode);
+  }, [viewMode]);
 
   const fetchProducts = useCallback(async () => {
     setIsLoading(true);
@@ -116,7 +158,9 @@ ${productList}
     const whatsappUrl = `https://wa.me/573229297190?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
     
+    // Limpiar carrito y almacenamiento local del formulario
     setCart([]);
+    localStorage.removeItem('dc_customerInfo'); 
     setIsCartOpen(false);
   };
 
@@ -200,7 +244,12 @@ ${productList}
         <Footer />
       </div>
       
-      <ChatWidget products={products} onScrollToProducts={scrollToProducts} />
+      <ChatWidget 
+        products={products} 
+        onScrollToProducts={scrollToProducts} 
+        onProductSelect={setSelectedProduct} // Passed prop to open modal
+      />
+      <LiveVisitors />
 
       {selectedProduct && (
         <ProductDetailModal 

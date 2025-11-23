@@ -5,7 +5,7 @@ import { CartItem, CustomerInfo, Product } from '../types';
 interface CartModalProps {
   isOpen: boolean;
   cartItems: CartItem[];
-  products: Product[]; // All products needed for recommendations
+  products: Product[]; 
   onClose: () => void;
   onUpdateQuantity: (productId: string, quantity: number) => void;
   onCheckout: (customerInfo: CustomerInfo) => void;
@@ -21,15 +21,44 @@ const CartModal: React.FC<CartModalProps> = ({
   onCheckout,
   onAddRecommendation
 }) => {
+  // Inicializar estado vacío, se rellenará en useEffect
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
-    nombre: '',
-    telefono: '',
-    para: '',
-    direccion: '',
-    mensajeTarjeta: '',
-    metodoPago: '',
+      nombre: '',
+      telefono: '',
+      para: '',
+      direccion: '',
+      mensajeTarjeta: '',
+      metodoPago: '',
   });
+
   const [view, setView] = useState<'cart' | 'checkout'>('cart');
+
+  // LOAD DATA ON OPEN: Important to sync with Chatbot
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      // Read from LocalStorage fresh
+      try {
+        const saved = localStorage.getItem('dc_customerInfo');
+        if (saved) {
+            setCustomerInfo(JSON.parse(saved));
+        }
+      } catch (e) { console.error(e); }
+    } else {
+      document.body.style.overflow = 'auto';
+      setTimeout(() => setView('cart'), 300); 
+    }
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isOpen]);
+
+  // SAVE DATA ON CHANGE
+  useEffect(() => {
+    if (customerInfo.nombre) { // Avoid saving empty init state over existing data
+        localStorage.setItem('dc_customerInfo', JSON.stringify(customerInfo));
+    }
+  }, [customerInfo]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -82,19 +111,6 @@ const CartModal: React.FC<CartModalProps> = ({
     return candidates.sort(() => 0.5 - Math.random()).slice(0, 2);
 
   }, [cartItems, products]);
-
-
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-      setTimeout(() => setView('cart'), 300); // Reset view after close animation
-    }
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
-  }, [isOpen]);
 
   if (!isOpen) return null;
 

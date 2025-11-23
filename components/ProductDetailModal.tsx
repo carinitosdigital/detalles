@@ -77,20 +77,21 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
 
   return (
     <div 
-      className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-end md:items-center justify-center p-0 md:p-4"
+      className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-md flex items-end md:items-center justify-center p-0 md:p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
     >
       <div 
-        className="bg-white/95 md:bg-white/90 backdrop-blur-xl border border-white/50 rounded-t-3xl md:rounded-3xl shadow-2xl w-full max-w-5xl h-[90dvh] md:h-auto md:max-h-[90vh] flex flex-col md:flex-row overflow-hidden animate-slide-up md:animate-fade-in-up relative"
+        /* UPDATED CONTAINER: Removed white background from main container to allow image to float on blur */
+        className="w-full max-w-5xl h-[90dvh] md:h-auto md:max-h-[90vh] flex flex-col md:flex-row overflow-hidden animate-slide-up md:animate-fade-in-up relative rounded-t-3xl md:rounded-3xl shadow-2xl bg-transparent"
         onClick={(e) => e.stopPropagation()}
       >
         
         {/* Botón Cerrar Flotante (Modal Principal) */}
         <button 
             onClick={onClose} 
-            className="absolute top-4 right-4 md:top-4 md:right-4 text-gray-500 hover:text-primary-fuchsia bg-white/80 hover:bg-white rounded-full p-2 z-50 shadow-sm border border-gray-100"
+            className="absolute top-4 right-4 md:top-6 md:right-6 text-gray-500 hover:text-primary-fuchsia bg-white/90 hover:bg-white rounded-full p-2 z-50 shadow-md border border-gray-100 transition-transform hover:scale-110"
         >
              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
@@ -117,49 +118,54 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
           </div>
         )}
 
-        {/* COLUMNA IZQUIERDA / TOP MOBILE: IMAGEN */}
-        {/* Adjusted to h-[45vh] on mobile to allow content visibility immediately */}
-        <div className="w-full md:w-1/2 h-[45vh] md:h-auto bg-gradient-to-b from-pink-50 to-white flex items-center justify-center relative overflow-hidden shrink-0 group">
+        {/* COLUMNA IZQUIERDA / TOP MOBILE: IMAGEN (FRAMELESS) */}
+        {/* UPDATED: bg-transparent and ambient shadow instead of solid background */}
+        <div className="w-full md:w-1/2 h-[45vh] md:h-auto bg-transparent flex items-center justify-center relative overflow-hidden shrink-0 group">
            
+           {/* Glass backdrop specifically for the image area to separate slightly from page background */}
+           <div className="absolute inset-0 bg-white/20 backdrop-blur-3xl -z-10"></div>
+
            {/* Marca de agua */}
            <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
                 <img 
                     src="https://lh3.googleusercontent.com/pw/AP1GczPrMZf5rg2zNJYRq0cAjIP3J-pzt8vEqsJ3b8z0l_tc0PFprhFdylr7Iy_lPJnVRiGVORAUCeZCkAq3d1ZunIHrH0hlq6bschkVw57o90eHV-KDZDwdrZK_XRR0WpsKE6SRp-fDJkAJBGCmQIla3Fy8=w991-h991-s-no-gm?authuser=0"
                     alt=""
-                    className="w-[70%] h-[70%] object-contain opacity-10 -rotate-12 mix-blend-overlay"
+                    className="w-[80%] h-[80%] object-contain opacity-20 -rotate-12 mix-blend-overlay"
                 />
            </div>
 
           {/* Botón de Expandir (Lupa) */}
           <button 
             onClick={() => setIsImageExpanded(true)}
-            className="absolute bottom-4 right-4 z-30 bg-white/80 hover:bg-white text-gray-600 hover:text-primary-fuchsia p-2 rounded-full shadow-md transition-all backdrop-blur-sm"
+            className="absolute bottom-4 right-4 z-30 bg-white/40 hover:bg-white text-gray-700 hover:text-primary-fuchsia p-2 rounded-full shadow-lg transition-all backdrop-blur-md border border-white/50"
             title="Ver imagen completa"
           >
              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg>
           </button>
 
           <div 
-            className="w-full h-full p-6 relative z-10 flex items-center justify-center cursor-zoom-in"
+            className="w-full h-full p-8 relative z-10 flex items-center justify-center cursor-zoom-in"
             onClick={() => setIsImageExpanded(true)}
           >
+             {/* Main Image with drop shadow for 3D float effect */}
             <img 
                 src={product.image} 
                 alt={product.name} 
-                className="max-w-full max-h-full object-contain drop-shadow-xl transition-transform duration-500 group-hover:scale-105" 
+                className="max-w-full max-h-full object-contain drop-shadow-2xl transition-transform duration-500 group-hover:scale-105" 
             />
           </div>
         </div>
 
         {/* COLUMNA DERECHA / BOTTOM MOBILE: DETALLES */}
-        <div className="w-full md:w-1/2 flex flex-col flex-1 bg-white md:bg-white/40 -mt-6 md:mt-0 rounded-t-3xl md:rounded-none shadow-[0_-4px_20px_rgba(0,0,0,0.05)] md:shadow-none relative z-20 min-h-0">
+        {/* Background restored to white/95 to ensure readability */}
+        <div className="w-full md:w-1/2 flex flex-col flex-1 bg-white/95 backdrop-blur-xl -mt-6 md:mt-0 rounded-t-3xl md:rounded-l-3xl md:rounded-r-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.1)] relative z-20 min-h-0 border-l border-white/50">
             
             {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto scrollbar-hide p-6 pb-24 md:pb-6">
                 
                 {/* Header del Producto */}
-                <div className="mb-4 text-center md:text-left">
-                    <span className="inline-block px-3 py-1 bg-pink-100 text-primary-fuchsia rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider mb-2">
+                <div className="mb-4 text-center md:text-left pt-2 md:pt-6">
+                    <span className="inline-block px-3 py-1 bg-pink-100/80 text-primary-fuchsia rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider mb-2">
                         {product.category}
                     </span>
                     <h2 className="text-xl md:text-4xl font-bold text-gray-800 leading-tight font-poppins mb-1">
