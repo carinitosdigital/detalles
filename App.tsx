@@ -127,7 +127,7 @@ ${productList}
   };
 
   return (
-    <div className="min-h-screen bg-background-cream font-poppins text-text-dark flex flex-col relative" id="inicio">
+    <div className="min-h-screen bg-background-cream font-poppins text-text-dark flex flex-col relative overflow-x-hidden" id="inicio">
       {/* Background Image Layer */}
       <div 
         className="fixed inset-0 z-0"

@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Product } from '../types';
 
 interface ProductDetailModalProps {
@@ -33,6 +33,14 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
   // Acordeón States (Mobile mainly)
   const [isDescOpen, setIsDescOpen] = useState(true);
   const [isAddonsOpen, setIsAddonsOpen] = useState(true);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
 
   const toggleAddOn = (id: string) => {
     setSelectedAddOns(prev => 
@@ -69,13 +77,13 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
 
   return (
     <div 
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-end md:items-center justify-center z-50 p-0 md:p-4"
+      className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-end md:items-center justify-center p-0 md:p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
     >
       <div 
-        className="bg-white/95 md:bg-white/90 backdrop-blur-xl border border-white/50 rounded-t-3xl md:rounded-3xl shadow-2xl w-full max-w-5xl h-[95vh] md:h-auto md:max-h-[90vh] flex flex-col md:flex-row overflow-hidden animate-slide-up md:animate-fade-in-up relative"
+        className="bg-white/95 md:bg-white/90 backdrop-blur-xl border border-white/50 rounded-t-3xl md:rounded-3xl shadow-2xl w-full max-w-5xl h-[90dvh] md:h-auto md:max-h-[90vh] flex flex-col md:flex-row overflow-hidden animate-slide-up md:animate-fade-in-up relative"
         onClick={(e) => e.stopPropagation()}
       >
         
@@ -90,7 +98,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
         {/* VISOR PANTALLA COMPLETA (LIGHTBOX) */}
         {isImageExpanded && (
           <div 
-            className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 animate-fade-in"
+            className="fixed inset-0 z-[120] bg-black/95 flex items-center justify-center p-4 animate-fade-in"
             onClick={() => setIsImageExpanded(false)}
           >
             <button 
@@ -110,7 +118,8 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
         )}
 
         {/* COLUMNA IZQUIERDA / TOP MOBILE: IMAGEN */}
-        <div className="w-full md:w-1/2 h-[40vh] md:h-auto bg-gradient-to-b from-pink-50 to-white flex items-center justify-center relative overflow-hidden shrink-0 group">
+        {/* Adjusted to h-[45vh] on mobile to allow content visibility immediately */}
+        <div className="w-full md:w-1/2 h-[45vh] md:h-auto bg-gradient-to-b from-pink-50 to-white flex items-center justify-center relative overflow-hidden shrink-0 group">
            
            {/* Marca de agua */}
            <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
@@ -143,36 +152,36 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
         </div>
 
         {/* COLUMNA DERECHA / BOTTOM MOBILE: DETALLES */}
-        <div className="w-full md:w-1/2 flex flex-col h-full bg-white md:bg-white/40 -mt-6 md:mt-0 rounded-t-3xl md:rounded-none shadow-[0_-4px_20px_rgba(0,0,0,0.05)] md:shadow-none relative z-20">
+        <div className="w-full md:w-1/2 flex flex-col flex-1 bg-white md:bg-white/40 -mt-6 md:mt-0 rounded-t-3xl md:rounded-none shadow-[0_-4px_20px_rgba(0,0,0,0.05)] md:shadow-none relative z-20 min-h-0">
             
             {/* Scrollable Content */}
-            <div className="flex-grow overflow-y-auto scrollbar-hide p-6 pb-24 md:pb-6">
+            <div className="flex-1 overflow-y-auto scrollbar-hide p-6 pb-24 md:pb-6">
                 
                 {/* Header del Producto */}
-                <div className="mb-6 text-center md:text-left">
+                <div className="mb-4 text-center md:text-left">
                     <span className="inline-block px-3 py-1 bg-pink-100 text-primary-fuchsia rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider mb-2">
                         {product.category}
                     </span>
-                    <h2 className="text-2xl md:text-4xl font-bold text-gray-800 leading-tight font-poppins mb-1">
+                    <h2 className="text-xl md:text-4xl font-bold text-gray-800 leading-tight font-poppins mb-1">
                         {product.name}
                     </h2>
-                    <p className="text-2xl font-bold text-primary-fuchsia md:hidden">
+                    <p className="text-xl font-bold text-primary-fuchsia md:hidden">
                         ${product.price.toLocaleString('es-CO')}
                     </p>
                 </div>
 
                 {/* Sección 1: Descripción (Colapsable) */}
-                <div className="mb-4 border-b border-gray-100 pb-4">
+                <div className="mb-3 border-b border-gray-100 pb-3">
                     <button 
                         onClick={() => setIsDescOpen(!isDescOpen)}
-                        className="w-full flex items-center justify-between text-gray-800 font-bold text-sm uppercase tracking-wide py-2"
+                        className="w-full flex items-center justify-between text-gray-800 font-bold text-xs uppercase tracking-wide py-1"
                     >
                         <span>📝 Descripción</span>
-                        <svg className={`w-5 h-5 text-gray-400 transition-transform ${isDescOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                        <svg className={`w-4 h-4 text-gray-400 transition-transform ${isDescOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
                     </button>
                     
-                    <div className={`overflow-hidden transition-all duration-300 ${isDescOpen ? 'max-h-40 opacity-100 mt-2' : 'max-h-0 opacity-0'}`}>
-                         <p className="text-gray-600 text-sm leading-relaxed">
+                    <div className={`overflow-hidden transition-all duration-300 ${isDescOpen ? 'max-h-32 opacity-100 mt-1' : 'max-h-0 opacity-0'}`}>
+                         <p className="text-gray-600 text-xs leading-relaxed">
                             {product.description}
                          </p>
                     </div>
@@ -182,57 +191,56 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
                 <div className="mb-4">
                     <button 
                         onClick={() => setIsAddonsOpen(!isAddonsOpen)}
-                        className="w-full flex items-center justify-between text-gray-800 font-bold text-sm uppercase tracking-wide py-2"
+                        className="w-full flex items-center justify-between text-gray-800 font-bold text-xs uppercase tracking-wide py-1"
                     >
                         <span>✨ Adicionales</span>
-                         <svg className={`w-5 h-5 text-gray-400 transition-transform ${isAddonsOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                         <svg className={`w-4 h-4 text-gray-400 transition-transform ${isAddonsOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
                     </button>
                     
-                    <div className={`transition-all duration-300 ${isAddonsOpen ? 'opacity-100 mt-3' : 'hidden opacity-0'}`}>
-                        <div className="grid grid-cols-4 md:grid-cols-3 gap-2 md:gap-3">
+                    <div className={`transition-all duration-300 ${isAddonsOpen ? 'opacity-100 mt-2' : 'hidden opacity-0'}`}>
+                        <div className="grid grid-cols-4 md:grid-cols-3 gap-2">
                             {ADD_ONS.map(addon => {
                                 const isSelected = selectedAddOns.includes(addon.id);
                                 return (
                                     <button
                                         key={addon.id}
                                         onClick={() => toggleAddOn(addon.id)}
-                                        className={`relative aspect-square rounded-2xl border transition-all duration-200 group flex flex-col items-center justify-center gap-1 p-1 ${
+                                        className={`relative aspect-square rounded-2xl border transition-all duration-200 group flex flex-col items-center justify-center gap-0.5 p-1 ${
                                             isSelected 
                                             ? 'bg-primary-fuchsia/10 border-primary-fuchsia shadow-md' 
                                             : 'bg-gray-50 border-transparent hover:border-pink-200'
                                         }`}
                                     >
                                         <span className="text-2xl md:text-3xl filter drop-shadow-sm">{addon.icon}</span>
-                                        <span className="text-[9px] md:text-[10px] font-bold text-gray-700 text-center leading-none line-clamp-2 w-full">
+                                        <span className="text-[8px] md:text-[10px] font-bold text-gray-700 text-center leading-none line-clamp-2 w-full">
                                             {addon.name}
                                         </span>
                                         {isSelected && (
-                                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary-fuchsia rounded-full flex items-center justify-center shadow-sm">
-                                                <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" /></svg>
+                                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary-fuchsia rounded-full flex items-center justify-center shadow-sm">
+                                                <svg className="w-1.5 h-1.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" /></svg>
                                             </div>
                                         )}
                                     </button>
                                 );
                             })}
                         </div>
-                         <p className="text-[10px] text-gray-400 mt-2 text-center italic">* Toca los iconos para agregar extras</p>
                     </div>
                 </div>
 
             </div>
 
             {/* FOOTER STICKY (Acción) */}
-            <div className="absolute bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t border-gray-100 p-4 md:p-6 pb-6 md:pb-6 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-30 rounded-b-none md:rounded-br-3xl">
-                 <div className="flex items-center justify-between gap-4">
+            <div className="absolute bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-100 p-4 md:p-6 pb-6 md:pb-6 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-30 rounded-b-none md:rounded-br-3xl">
+                 <div className="flex items-center justify-between gap-3">
                     <div className="flex flex-col">
-                        <span className="text-[10px] text-gray-500 font-bold uppercase">Total Estimado</span>
-                        <span className="text-2xl font-bold text-gray-900 tracking-tight font-poppins">
+                        <span className="text-[9px] text-gray-500 font-bold uppercase">Total Estimado</span>
+                        <span className="text-xl md:text-2xl font-bold text-gray-900 tracking-tight font-poppins">
                             ${totalPrice.toLocaleString('es-CO')}
                         </span>
                     </div>
                     <button 
                         onClick={handleAddToCartWithExtras}
-                        className="flex-grow bg-gradient-to-r from-primary-fuchsia to-pink-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-pink-200 hover:shadow-pink-300 active:scale-95 transition-all flex items-center justify-center gap-2"
+                        className="flex-grow bg-gradient-to-r from-primary-fuchsia to-pink-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-pink-200 hover:shadow-pink-300 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm md:text-base"
                     >
                         <span>Agregar</span>
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>

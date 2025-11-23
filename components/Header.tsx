@@ -224,7 +224,7 @@ const Header: React.FC<HeaderProps> = ({
         <div className="relative w-full max-w-7xl mx-auto flex flex-col z-10">
             
             {/* ROW 1: Logo, Search, Actions */}
-            <div className="px-4 sm:px-6 lg:px-8 py-2 flex justify-between items-center gap-4">
+            <div className="px-4 sm:px-6 lg:px-8 py-2 flex justify-between items-center gap-2 md:gap-4">
             
             {/* Logo */}
             <div 
@@ -246,22 +246,22 @@ const Header: React.FC<HeaderProps> = ({
                 <div className="relative group">
                     <input
                         type="text"
-                        placeholder="Buscar regalos..."
+                        placeholder="Buscar..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-white/60 backdrop-blur-sm border border-white/50 rounded-full py-2 pl-10 pr-10 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-primary-fuchsia/50 focus:bg-white transition-all shadow-inner placeholder-gray-500 text-gray-700"
+                        className="w-full bg-white/60 backdrop-blur-sm border border-white/50 rounded-full py-2 pl-9 md:pl-10 pr-9 md:pr-10 text-xs md:text-base focus:outline-none focus:ring-2 focus:ring-primary-fuchsia/50 focus:bg-white transition-all shadow-inner placeholder-gray-500 text-gray-700"
                     />
-                    <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     
                     {/* Botón Voz */}
                     <button 
                         onClick={startListening}
-                        className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 rounded-full transition-all hover:bg-gray-100 ${isListening ? 'text-primary-fuchsia scale-110 animate-pulse' : 'text-gray-400'}`}
+                        className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1 md:p-1.5 rounded-full transition-all hover:bg-gray-100 ${isListening ? 'text-primary-fuchsia scale-110 animate-pulse' : 'text-gray-400'}`}
                         title="Buscar por voz"
                     >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+                        <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
                     </button>
                 </div>
 
@@ -279,7 +279,7 @@ const Header: React.FC<HeaderProps> = ({
                                     }}
                                     className="flex items-center p-3 hover:bg-pink-50 transition-colors cursor-pointer border-b border-gray-100 last:border-0 gap-3"
                                 >
-                                    <div className="w-12 h-12 bg-white rounded-lg p-1 shadow-sm flex-shrink-0">
+                                    <div className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-lg p-1 shadow-sm flex-shrink-0">
                                         <img 
                                             src={product.image} 
                                             alt={product.name} 
@@ -287,10 +287,10 @@ const Header: React.FC<HeaderProps> = ({
                                         />
                                     </div>
                                     <div className="flex-grow min-w-0">
-                                        <p className="text-sm font-bold text-gray-800 truncate">{product.name}</p>
-                                        <p className="text-xs text-gray-500 truncate">{product.category}</p>
+                                        <p className="text-xs md:text-sm font-bold text-gray-800 truncate">{product.name}</p>
+                                        <p className="text-[10px] md:text-xs text-gray-500 truncate">{product.category}</p>
                                     </div>
-                                    <span className="text-sm font-bold text-primary-fuchsia whitespace-nowrap">
+                                    <span className="text-xs md:text-sm font-bold text-primary-fuchsia whitespace-nowrap">
                                         ${product.price.toLocaleString('es-CO')}
                                     </span>
                                 </li>
@@ -320,7 +320,7 @@ const Header: React.FC<HeaderProps> = ({
             </nav>
 
             {/* Botones Acción */}
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
                 {/* Carrito */}
                 <button 
                 onClick={onCartClick} 
