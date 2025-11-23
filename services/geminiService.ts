@@ -55,14 +55,6 @@ const STATIC_PRODUCTS: Product[] = [
         image: "https://lh3.googleusercontent.com/pw/AP1GczMOrTSsFvhATcGk6gL4vvv-7_aFCMVxXeVExprMWoO4CXURMDCfrcKLKxRlJMdBqJJFWU2nkBlsY9bHLX-GbZ4S5ojAWRD2M5BkG1sVUEelI_Pbyr3W9Xlw4x5lZS9-TFsCOF2RhZaJJAlnQ4X-ROIT=w513-h762-s-no-gm?authuser=0"
     },
     {
-        id: "anch-3",
-        name: "Ancheta Frutal Deluxe",
-        description: "Selección de frutas exóticas, queso, botella de vino tinto y galletas saladas en canasta artesanal.",
-        price: 130000,
-        category: "Anchetas",
-        image: "https://lh3.googleusercontent.com/pw/AP1GczNpvaHJEsAhrZK8jR1nxFfPiLxmoZl5C48BGJqBCROkPn2Nl96QyoUHdnQHERGhAqgCdjhatAuTN5zO9C5OrWeBuyKOQjV4ptbvjnRM6itfcsCsoClnArZvswXj4ocwVIuUIBG-ADlayyPT1kEuyNLR=w439-h991-s-no-gm?authuser=0"
-    },
-    {
         id: "anch-4",
         name: "Ancheta Vinos y Quesos",
         description: "Tabla de quesos madurados, jamón serrano, vino cabernet y decoración elegante.",

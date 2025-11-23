@@ -4,7 +4,6 @@ import { Product, CartItem, CustomerInfo } from './types';
 import { generateProducts } from './services/geminiService';
 import Header from './components/Header';
 import ProductGrid from './components/ProductGrid';
-import SearchBar from './components/SearchBar';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorDisplay from './components/ErrorDisplay';
 import Footer from './components/Footer';
@@ -12,6 +11,8 @@ import ProductDetailModal from './components/ProductDetailModal';
 import CartModal from './components/CartModal';
 import ChatWidget from './components/ChatWidget';
 import WelcomeScreen from './components/WelcomeScreen';
+import AboutSection from './components/AboutSection';
+import InfiniteCarousel from './components/InfiniteCarousel';
 
 const App: React.FC = () => {
   const [showWelcome, setShowWelcome] = useState<boolean>(true);
@@ -19,8 +20,10 @@ const App: React.FC = () => {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  
+  // Default view mode is 'list' as requested
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'single'>('list');
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -32,7 +35,6 @@ const App: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      // Now loads from local static database
       const generatedProducts = await generateProducts();
       setProducts(generatedProducts);
       setFilteredProducts(generatedProducts);
@@ -49,7 +51,6 @@ const App: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Extract categories
   const categories = useMemo(() => {
     const cats = products.map(p => p.category);
     return Array.from(new Set(cats));
@@ -57,24 +58,11 @@ const App: React.FC = () => {
 
   useEffect(() => {
     let filtered = products;
-
-    // Filter by Search
-    if (searchTerm) {
-      const lowercasedFilter = searchTerm.toLowerCase();
-      filtered = filtered.filter(product =>
-        product.name.toLowerCase().includes(lowercasedFilter) ||
-        product.description.toLowerCase().includes(lowercasedFilter) ||
-        product.category.toLowerCase().includes(lowercasedFilter)
-      );
-    }
-
-    // Filter by Category Button
     if (selectedCategory) {
       filtered = filtered.filter(product => product.category === selectedCategory);
     }
-
     setFilteredProducts(filtered);
-  }, [searchTerm, products, selectedCategory]);
+  }, [products, selectedCategory]);
 
   const handleAddToCart = (productToAdd: Product) => {
     setCart(prevCart => {
@@ -88,7 +76,7 @@ const App: React.FC = () => {
       }
       return [...prevCart, { ...productToAdd, quantity: 1 }];
     });
-    setIsCartOpen(true); // Open cart feedback
+    setIsCartOpen(true);
   };
 
   const handleUpdateCartQuantity = (productId: string, quantity: number) => {
@@ -139,7 +127,7 @@ ${productList}
   };
 
   return (
-    <div className="min-h-screen bg-background-cream font-poppins text-text-dark flex flex-col relative">
+    <div className="min-h-screen bg-background-cream font-poppins text-text-dark flex flex-col relative" id="inicio">
       {/* Background Image Layer */}
       <div 
         className="fixed inset-0 z-0"
@@ -147,59 +135,48 @@ ${productList}
           backgroundImage: `url('https://images.unsplash.com/photo-1519751138087-5bf79df62d58?q=80&w=2670&auto=format&fit=crop')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          opacity: 0.08, // Kept very subtle to not interfere with text readability
+          opacity: 0.08,
           pointerEvents: 'none'
         }}
       />
 
       {showWelcome && <WelcomeScreen onComplete={() => setShowWelcome(false)} />}
 
-      <Header cartItemCount={cartItemCount} onCartClick={() => setIsCartOpen(true)} />
+      <Header 
+        cartItemCount={cartItemCount} 
+        onCartClick={() => setIsCartOpen(true)} 
+        products={products}
+        onProductSelect={setSelectedProduct}
+        // Filters Props
+        categories={categories}
+        selectedCategory={selectedCategory}
+        onSelectCategory={setSelectedCategory}
+        // View Mode Props
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+      />
       
-      <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 relative z-10">
-        <div className="text-center mb-10 md:mb-12">
-          <h1 className="text-4xl md:text-6xl font-bold text-primary-fuchsia mb-3 font-pacifico drop-shadow-sm">Detalles Cariñitos</h1>
-          <p className="text-xl md:text-2xl text-gray-600 max-w-2xl mx-auto">
-            Regalos únicos, desayunos sorpresa y detalles que enamoran. <br/>
-            <span className="text-base text-primary-fuchsia font-semibold">¡Servicio a domicilio 24/7!</span>
+      {/* Infinite Carousel with Overlay effect 
+          Added more top padding (pt-36 md:pt-44) because header is taller now with filters
+      */}
+      <div className="pt-40 md:pt-48 relative z-20 mb-4 md:mb-8">
+          {!isLoading && products.length > 0 && (
+            <InfiniteCarousel products={products} onProductClick={setSelectedProduct} />
+          )}
+      </div>
+      
+      <main className="flex-grow w-full max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 pt-2 pb-12 relative z-10">
+        <div className="text-center mb-4 md:mb-12">
+          <h1 className="text-xl md:text-5xl font-semibold text-primary-fuchsia mb-1 md:mb-3 font-poppins drop-shadow-sm">Detalles Cariñitos</h1>
+          <p className="text-xs md:text-xl text-gray-600 max-w-2xl mx-auto leading-tight">
+            Regalos únicos y desayunos sorpresa.<br/>
+            <span className="text-[10px] md:text-base text-primary-fuchsia font-semibold">¡Servicio a domicilio 24/7!</span>
           </p>
         </div>
         
-        {/* Search & Filters */}
-        <div className="mb-10">
-            <SearchBar onSearch={setSearchTerm} />
-            
-            {/* Category Pills */}
-            {!isLoading && categories.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-3 mt-6">
-                <button 
-                  onClick={() => setSelectedCategory(null)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all shadow-sm ${
-                    selectedCategory === null 
-                    ? 'bg-primary-fuchsia text-white shadow-md transform scale-105' 
-                    : 'bg-white/90 text-gray-600 hover:bg-white border border-gray-200'
-                  }`}
-                >
-                  Todos
-                </button>
-                {categories.map(cat => (
-                  <button 
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat === selectedCategory ? null : cat)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all shadow-sm ${
-                      selectedCategory === cat 
-                      ? 'bg-primary-fuchsia text-white shadow-md transform scale-105' 
-                      : 'bg-white/90 text-gray-600 hover:bg-white border border-gray-200'
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-            )}
-        </div>
+        {/* Filters have been moved to Header.tsx */}
 
-        <div ref={productsSectionRef}>
+        <div id="catalogo" ref={productsSectionRef} className="scroll-mt-48 min-h-[500px]">
             {isLoading ? (
             <LoadingSpinner />
             ) : error ? (
@@ -209,12 +186,17 @@ ${productList}
                 products={filteredProducts} 
                 onProductClick={setSelectedProduct} 
                 onAddToCart={handleAddToCart} 
+                viewMode={viewMode}
             />
             )}
         </div>
+
+        <div id="nosotros" className="mt-10 md:mt-24 scroll-mt-32">
+           <AboutSection />
+        </div>
       </main>
       
-      <div className="relative z-10">
+      <div id="contacto" className="relative z-10">
         <Footer />
       </div>
       
@@ -234,9 +216,11 @@ ${productList}
       <CartModal 
         isOpen={isCartOpen}
         cartItems={cart}
+        products={products}
         onClose={() => setIsCartOpen(false)}
         onUpdateQuantity={handleUpdateCartQuantity}
         onCheckout={handleCheckout}
+        onAddRecommendation={handleAddToCart}
       />
     </div>
   );
